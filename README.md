@@ -1,2 +1,2 @@
 # Chatroom
-Build simple chatroom with Express.
+Build a simple chatroom with Express.
