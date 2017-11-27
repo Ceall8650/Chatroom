@@ -1,60 +1,47 @@
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
-var logger = require('morgan');
+var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 var routeDirPath = path.join(__dirname, 'routes')
 var routeFiles
 
-// var index = require('./routes/index');
+var index = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
-
+let log4js = require('log4js')
+  logger = log4js.getLogger()
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
-app.use(bodyParser.json());
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(morgan('common'));
+// app.use(logger('dev'))
+// logger.debug("Some debug messages");
+
+app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 routeFiles = fs.readdirSync(routeDirPath)
 console.log(routeFiles)
+
 for(file of routeFiles){
 	fileName = file.split('.')[0]
 	apiPath = `/${fileName}`
 	filePath = `./routes/${fileName}`
 	console.log(`register path: ${apiPath}, ${filePath}`)
-	// app.use(apiPath, require(filePath))
-	// app.use('/users', users);
+	app.use(apiPath, require(filePath))
 }
 
-// fs.readdirSync(routeDirPath, function (err, files) {
-// 	let file,
-// 	  fileName,
-// 	  apiPath,
-// 	  filePath
-
-// 	for(file of files){
-// 		fileName = file.split('.')[0]
-// 		apiPath = `/${fileName}`
-// 		filePath = `./routes/${fileName}`
-// 		console.log(`register path: ${apiPath}, ${filePath}`)
-// 		// app.use(apiPath, require(filePath))
-// 		// app.use('/users', users);
-// 	}
-// 	// body...
-// })
-
-// app.use('/', index);
-app.use('/users', users);
+// default route
+app.use('/', require('./routes/index'))
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
